@@ -44,12 +44,29 @@ app.post('/exchange-token', async (req, res) => {
 app.post('/transactions', async (req, res) => {
   try {
     const { access_token } = req.body
-    const response = await plaidClient.transactionsGet({
-      access_token,
+
+    let response
+    let attempts = 0
+    while(attempts < 3){
+      try{
+        response = await plaidClient.transactionsGet({
+          access_token,
       start_date: '2024-01-01',
       end_date: '2024-12-31',
       options: { count: 100, offset: 0 }
-    })
+        })
+        break
+      } catch(err){
+        if(err.response?.data?.error_code === 'PRODUCT_NOT_READY' && attempts < 2) {
+          console.log('product not ready, retrying in 2s...')
+          await new Promise(r => setTimeout(r, 2000))
+          attempts++
+        }else{
+          throw err
+        }
+      }
+    }
+      
     
     let transactions = response.data.transactions
     
@@ -78,12 +95,15 @@ app.post('/transactions', async (req, res) => {
 
 app.get('/transactions-now', async (req, res) => {
   try {
-    const response = await plaidClient.transactionsGet({
+      const end_date =  new Date().toISOString().split('T')[0]
+      const start_date = new Date(Date.now() - 90 * 24 * 60 * 1000).toISOString().split('T')[0]
+
+      const response = await plaidClient.transactionsGet({
       access_token: savedAccessToken,
-      start_date: '2024-01-01',
-      end_date: '2024-12-31',
+      start_date,
+      end_date,
       options: { count: 100, offset: 0 }
-    })
+      })
     console.log('transactions fetched:', response.data.transactions.length)
     res.json(response.data.transactions)
   } catch (err) {
@@ -96,7 +116,7 @@ app.post('/analyze-transactions', async (req, res) => {
   try {
     const { transactions } = req.body
 
-    const response = await fetch('http://localhost:5000/detect-anomalies', {
+    const response = await fetch(`${process.env.ML_SERVICE_URL || 'http://localhost:5000'}/detect-anomalies`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({transactions})
@@ -110,7 +130,8 @@ app.post('/analyze-transactions', async (req, res) => {
   }
 })
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000')
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
 })
 
