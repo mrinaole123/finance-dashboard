@@ -124,7 +124,7 @@ Visit http://localhost:5173, click Connect Bank Account, and use Plaid's sandbox
     for more meaningful pattern detection
  -> Add a simple natural-language query interface 
     for spending questions
-->  Persist transaction data in a database instead 
+ ->  Persist transaction data in a database instead 
     of in-memory storage
 
 
