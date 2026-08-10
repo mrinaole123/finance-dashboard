@@ -49,11 +49,14 @@ app.post('/transactions', async (req, res) => {
     let attempts = 0
     while(attempts < 3){
       try{
+
+        const end_date = new Date().toISOString().split('T')[0]
+        const start_date = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         response = await plaidClient.transactionsGet({
           access_token,
-      start_date: '2024-01-01',
-      end_date: '2024-12-31',
-      options: { count: 100, offset: 0 }
+          start_date,
+          end_date,
+          options: { count: 100, offset: 0 }
         })
         break
       } catch(err){
@@ -96,7 +99,7 @@ app.post('/transactions', async (req, res) => {
 app.get('/transactions-now', async (req, res) => {
   try {
       const end_date =  new Date().toISOString().split('T')[0]
-      const start_date = new Date(Date.now() - 90 * 24 * 60 * 1000).toISOString().split('T')[0]
+      const start_date = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
       const response = await plaidClient.transactionsGet({
       access_token: savedAccessToken,
@@ -131,7 +134,7 @@ app.post('/analyze-transactions', async (req, res) => {
 })
 
 const PORT = process.env.PORT || 3000
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`)
 })
 

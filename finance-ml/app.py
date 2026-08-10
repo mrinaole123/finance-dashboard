@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -33,5 +34,7 @@ def detect_anomalies():
     result = df.drop(columns=['category']).to_dict('records')
     return jsonify(result)
 
+
 if __name__ == '__main__':
-    app.run(port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
