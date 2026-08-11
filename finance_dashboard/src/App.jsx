@@ -14,7 +14,7 @@ function App(){
 
   
   useEffect(() => {
-    fetch('http://localhost:3000/create-link-token', { method: 'POST'})
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/create-link-token`, { method: 'POST'})
       .then(res => res.json())
       .then(data => {
         console.log('data from backend:', data)
@@ -25,7 +25,7 @@ function App(){
 
   const handleSuccess = (public_token) => {
     console.log('public token received:', public_token)
-    fetch('http://localhost:3000/exchange-token', {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/exchange-token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ public_token })
@@ -41,7 +41,7 @@ function App(){
 
   const fetchTransactions = (token) => {
     console.log('fetching transactions with token:', token)
-    fetch('http://localhost:3000/transactions', {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/transactions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify({ access_token: token })
@@ -55,7 +55,7 @@ function App(){
   }
 
   const analyzeTransactions = (transactionList) => {
-    fetch('http://localhost:3000/analyze-transactions', {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/analyze-transactions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ transactions: transactionList })
