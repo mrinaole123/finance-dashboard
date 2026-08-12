@@ -21,14 +21,33 @@ const plaidClient = new PlaidApi(config)
 let savedAccessToken = null
 
 app.post('/create-link-token', async (req, res) => {
-  const response = await plaidClient.linkTokenCreate({
-    user: { client_user_id: 'user-id-123' },
-    client_name: 'Finance Dashboard',
-    products: ['transactions'],
-    country_codes: ['US'],
-    language: 'en',
-  })
-  res.json({ link_token: response.data.link_token })
+  try {
+    const response = await plaidClient.linkTokenCreate({
+      user: {
+        client_user_id: 'user-id-123'
+      },
+      client_name: 'Finance Dashboard',
+      products: ['transactions'],
+      country_codes: ['US'],
+      language: 'en'
+    })
+
+    console.log('Link token created successfully')
+
+    res.json({
+      link_token: response.data.link_token
+    })
+
+  } catch (err) {
+    console.log(
+      'LINK TOKEN ERROR:',
+      err.response?.data || err.message
+    )
+
+    res.status(500).json({
+      error: err.response?.data || err.message
+    })
+  }
 })
 
 app.post('/exchange-token', async (req, res) => {
